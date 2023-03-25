@@ -6,68 +6,46 @@ using Melanchall.DryWetMidi.Interaction;
 using System.IO;
 using UnityEngine.Networking;
 using System;
-using System.Collections;
 
 public class SongManager : MonoBehaviour
 {
-    public static SongManager Instance;
+    private static SongManager instance;
+    public static SongManager Instance
+    {
+        get
+        {
+            if (instance == null)
+                return null;
+            return instance;
+        }
+    }
     public AudioSource audioSource;
     public Lane[] lanes;
     public float songDelay;
-    public double marginOfError;
 
-    public int inputDelay;
+    public int inputDelayInMilliseconds;
+    public float marginOfError;
 
     public string fileLoc;
     public float noteTime;
     public float noteSpawnY;
     public float noteTapY;
-    public float noteDespawnY
-    {
-        get
-        {
-            return noteTapY - (noteSpawnY - noteTapY);
-        }
-    }
+    public float noteDespawnY{get{return noteTapY - (noteSpawnY - noteTapY);}}
 
     public static MidiFile midiFile = null;
 
-    void Start()
+    private void Awake()
     {
-        Instance = this;
-        if (Application.streamingAssetsPath.StartsWith("http://") || Application.streamingAssetsPath.StartsWith("http://"))
-        {
-            ReadFromWebsite();
-        }
-        else
-        {
-            ReadFromFile();
-        }
-
-        if (midiFile == null)
-            Debug.Log("AA");
+        if(instance == null)
+            instance = this;
     }
 
-    private IEnumerator ReadFromWebsite()
+    void Start()
     {
-        using (UnityWebRequest www = UnityWebRequest.Get(Application.streamingAssetsPath + "/" + fileLoc))
-        {
-            yield return www.SendWebRequest();
+        ReadFromFile();
 
-            if (www.isNetworkError || www.isHttpError)
-            {
-                Debug.LogError(www.error);
-            }
-            else
-            {
-                byte[] results = www.downloadHandler.data;
-                using (var stream = new MemoryStream(results))
-                {
-                    midiFile = MidiFile.Read(stream);
-                    GetDataFromMidi();
-                }
-            }
-        }
+        if (midiFile == null)
+            Debug.Log("worng midi file");
     }
 
     private void ReadFromFile()
@@ -82,12 +60,15 @@ public class SongManager : MonoBehaviour
         var arr = new Melanchall.DryWetMidi.Interaction.Note[notes.Count];
         notes.CopyTo(arr, 0);
 
-        Invoke(nameof(StartSomg), songDelay);
+        foreach (var lane in lanes)
+            lane.SetTimeStamps(arr);
+
+        Invoke(nameof(StartSong), songDelay);
     }
 
-    private void StartSomg()
+    private void StartSong()
     {
-        //audioSource.Play();
+        audioSource.Play();
     }
 
     public static double GetAudioSourceTime()

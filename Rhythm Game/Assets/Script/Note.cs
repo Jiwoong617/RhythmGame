@@ -6,9 +6,13 @@ public class Note : MonoBehaviour
 {
     double timeInstantiated;
     public float assignedTime;
+
+    float xPos;
+
     void Start()
     {
         timeInstantiated = SongManager.GetAudioSourceTime();
+        xPos = transform.parent.position.x;
     }
 
     // Update is called once per frame
@@ -24,7 +28,8 @@ public class Note : MonoBehaviour
         }
         else
         {
-            transform.localPosition = Vector3.Lerp(Vector3.up * SongManager.Instance.noteSpawnY, Vector3.up * SongManager.Instance.noteDespawnY, t);
+            transform.position = Vector3.Lerp(Vector3.up * SongManager.Instance.noteSpawnY, Vector3.up * SongManager.Instance.noteDespawnY, t);
+            transform.position += Vector3.right * xPos;
             GetComponent<SpriteRenderer>().enabled = true;
         }
     }

@@ -1,32 +1,63 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.UI;
 
 public class ScoreManager : MonoBehaviour
 {
-    public static ScoreManager Instance;
-    public AudioSource hitSFX;
-    public AudioSource missSFX;
-    public TextMeshProUGUI scoreText;
-    static int comboScore;
+    private static ScoreManager instance;
+    public static ScoreManager Instance
+    {
+        get 
+        {
+            if (instance == null)
+                return null;
+            return instance; 
+        }
+    }
+
+    [SerializeField] Animator animator;
+    [SerializeField] TextMeshProUGUI scoreText;
+    [SerializeField] Image scoreImg;
+    [SerializeField] Sprite[] perfectGoodBad;
+
+    int comboScore;
+
     void Start()
     {
-        Instance = this;
+        if(instance == null)
+            instance = this;
+
         comboScore = 0;
     }
-    public static void Hit()
+
+    public void Hit(int score)
     {
+        if (scoreImg.gameObject.active == false)
+            scoreImg.gameObject.SetActive(true);
+
         comboScore += 1;
-        //Instance.hitSFX.Play();
+        scoreImg.sprite = perfectGoodBad[score];
+        scoreText.text = comboScore.ToString();
+        animator.SetTrigger("Effect");
     }
-    public static void Miss()
+
+    public void Miss()
     {
+        if (scoreImg.gameObject.active == false)
+            scoreImg.gameObject.SetActive(true);
+
         comboScore = 0;
-        //Instance.missSFX.Play();
+        scoreImg.sprite = perfectGoodBad[3];
+        scoreText.text = comboScore.ToString();
+        animator.SetTrigger("Effect");
     }
+
     private void Update()
     {
-        scoreText.text = comboScore.ToString();
     }
 }
