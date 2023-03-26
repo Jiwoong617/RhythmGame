@@ -25,7 +25,10 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] Image scoreImg;
     [SerializeField] Sprite[] perfectGoodBad;
 
+
     int comboScore;
+    public int maxCombo;
+    public int[] hitType = new int[4]; //perfect good bad miss
 
     void Start()
     {
@@ -33,6 +36,7 @@ public class ScoreManager : MonoBehaviour
             instance = this;
 
         comboScore = 0;
+        maxCombo = 0;
     }
 
     public void Hit(int score)
@@ -41,6 +45,7 @@ public class ScoreManager : MonoBehaviour
             scoreImg.gameObject.SetActive(true);
 
         comboScore += 1;
+        hitType[score]++;
         scoreImg.sprite = perfectGoodBad[score];
         scoreText.text = comboScore.ToString();
         animator.SetTrigger("Effect");
@@ -52,6 +57,7 @@ public class ScoreManager : MonoBehaviour
             scoreImg.gameObject.SetActive(true);
 
         comboScore = 0;
+        hitType[3]++;
         scoreImg.sprite = perfectGoodBad[3];
         scoreText.text = comboScore.ToString();
         animator.SetTrigger("Effect");
@@ -59,5 +65,7 @@ public class ScoreManager : MonoBehaviour
 
     private void Update()
     {
+        if(comboScore > maxCombo)
+            maxCombo = comboScore;
     }
 }

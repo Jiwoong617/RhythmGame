@@ -6,6 +6,7 @@ using Melanchall.DryWetMidi.Interaction;
 using System.IO;
 using UnityEngine.Networking;
 using System;
+using System.ComponentModel;
 
 public class SongManager : MonoBehaviour
 {
@@ -43,13 +44,45 @@ public class SongManager : MonoBehaviour
     void Start()
     {
         ReadFromFile();
+        isLoading = false;
 
         if (midiFile == null)
             Debug.Log("worng midi file");
+
+        //Debug.Log(audioSource.clip.length);
     }
+
+    [SerializeField] double time = 0;
+    [SerializeField] bool isLoading = false;
+    private void Update()
+    {
+        time += Time.deltaTime;
+        if (time >= audioSource.clip.length)
+        {
+            SelectedSong data = SelectedSong.Instance;
+            ScoreManager score = ScoreManager.Instance;
+            data.maxCombo = score.maxCombo;
+            for (int i = 0; i < 4; i++)
+                data.score[i] = score.hitType[i];
+
+            data.isSelected = false;
+            if (isLoading)
+                return;
+            isLoading = true;
+            LoadingUIScript.Instance.LoadScene("Score");
+        }
+    }
+
 
     private void ReadFromFile()
     {
+        SelectedSong go = SelectedSong.Instance;
+        if(go.isSelected)
+        {
+            fileLoc = go.songName + ".mid";
+            //Debug.Log(fileLoc);
+        }
+
         midiFile = MidiFile.Read(Application.streamingAssetsPath + "/" + fileLoc);
         GetDataFromMidi();
     }

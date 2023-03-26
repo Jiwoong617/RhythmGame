@@ -16,9 +16,11 @@ public class Lane : MonoBehaviour
 
     int spawnIndex = 0;
     int inputIndex = 0;
+    GameObject effect;
 
     void Start()
     {
+        effect = transform.GetChild(0).gameObject;
     }
 
     public void SetTimeStamps(Melanchall.DryWetMidi.Interaction.Note[] array)
@@ -35,10 +37,9 @@ public class Lane : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         SpawnNote();
         NoteHitJudge();
-
+        PressEffect();
     }
 
     private void SpawnNote()
@@ -97,6 +98,14 @@ public class Lane : MonoBehaviour
                 inputIndex++;
             }
         }
+    }
+
+    private void PressEffect()
+    {
+        if(Input.GetKey(input))
+            effect.SetActive(true);
+        else 
+            effect.SetActive(false);
     }
 
     private void Hit(int score)
